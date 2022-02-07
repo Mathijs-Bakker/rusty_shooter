@@ -6,7 +6,7 @@ use fyrox::{
     engine::{resource_manager, Engine},
     event::{DeviceEvent, ElementState, Event, VirtualKeyCode, WindowEvent},
     event_loop::{ControlFlow, EventLoop},
-    gui::window::WindowBuilder,
+    gui::window::{WindowBuilder, WindowTitle},
     resource::texture::TextureWrapMode,
     scene::{
         base::BaseBuilder,
@@ -38,7 +38,8 @@ impl Game {
 
 fn main() {
     // 1.a - Configure app window:
-    let window_builder = WindowBuilder::new().with_title("Rusty Shooter");
+    let window_builder = WindowBuilder::new(fyrox::gui::widget::WidgetBuilder::new())
+        .with_title(WindowTitle::Text("Rusty Shooter".to_string()));
     // 1.b - OS event listener:
     let event_loop = EventLoop::new();
 }
