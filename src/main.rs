@@ -37,13 +37,12 @@ impl Game {
 }
 
 fn main() {
-    // 1.a - Configure app window:
+    // 1.1. Configure app window:
     let window_builder =
         fyrox::window::WindowBuilder::new().with_title("Rusty Shooter".to_string());
-    // 1.b - OS event listener:
+    // 1.2. OS event listener: Receives events from the operating system (close, resize window etc.)
     let event_loop = EventLoop::new();
-
-    // Create an instance of the engine.
+    // 1.3. Create an instance of the Fyrox game engine. With WindowBuilder and EventLoop as args.
     let mut engine = Engine::new(window_builder, &event_loop, false).unwrap();
 
     // Initialize game instance.
@@ -52,19 +51,20 @@ fn main() {
 
     // Run the event loop of the main window. which will respond to OS and window events and update
     // engine's state accordingly. Engine lets you to decide which event should be handled,
-    // this is a minimal working example of how it should be.
-    let clock = time::Instant::now();
 
+    // Time vars for game loop:
+    let clock = time::Instant::now();
     let mut elapsed_time = 0.0;
+
     event_loop.run(move |event, _, control_flow| {
         match event {
             Event::MainEventsCleared => {
-                // This main game loop - it has fixed time step which means that game
-                // code will run at fixed speed even if renderer can't give you desired
-                // 60 fps.
-                let mut dt = clock.elapsed().as_secs_f32() - elapsed_time;
-                while dt >= TIMESTEP {
-                    dt -= TIMESTEP;
+                // The core of the game loop:
+                // Fixed time step, makes sure that code runs at a fixed speed.
+                // even if the renderer can't keep up the fps.
+                let mut delta_time = clock.elapsed().as_secs_f32() - elapsed_time;
+                while delta_time >= TIMESTEP {
+                    delta_time -= TIMESTEP;
                     elapsed_time += TIMESTEP;
 
                     // Run our game's logic.
@@ -78,10 +78,11 @@ fn main() {
                 engine.get_window().request_redraw();
             }
             Event::RedrawRequested(_) => {
-                // Render at max speed - it is not tied to the game code.
+                // Render at max speed (it is not tied to the game code).
                 engine.render().unwrap();
             }
             Event::WindowEvent { event, .. } => match event {
+                // Handle window events:
                 WindowEvent::CloseRequested => *control_flow = ControlFlow::Exit,
                 WindowEvent::KeyboardInput { input, .. } => {
                     // Exit game by hitting Escape.
@@ -90,13 +91,13 @@ fn main() {
                     }
                 }
                 WindowEvent::Resized(size) => {
-                    // It is very important to handle Resized event from window, because
-                    // renderer knows nothing about window size - it must be notified
+                    // The renderer knows nothing about window size - it must be notified
                     // directly when window size has changed.
                     engine.set_frame_size(size.into()).unwrap();
                 }
                 _ => (),
             },
+            // Continue listening:
             _ => *control_flow = ControlFlow::Poll,
         }
     });
